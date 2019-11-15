@@ -25,14 +25,70 @@ from keras.layers import Input, Flatten, Dense, Dropout, Lambda
 from keras.optimizers import RMSprop
 from keras import backend as K
 from keras.utils import plot_model
+import numpy as np
 
 num_classes = 10
 epochs = 20
 
+# %%
+A = np.asarray([
+        [
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9]
+        ],
+        [
+            [10, 20, 30],
+            [40, 50, 60],
+            [70, 80, 90]
+        ],
+        [
+            [100, 200, 300],
+            [400, 500, 600],
+            [700, 800, 900]
+        ]
+    ])
+
+B = np.asarray(
+        [9, 8, 7]
+    )
+
+A = K.variable(A)
+B = K.variable(B)
+# %%
+# K.get_value(A)
+
+# K.sum(K.square(A - B), axis=0, keepdims=True)
+print(K.get_value(K.sum(A,keepdims=True,axis=0)))
+print(K.get_value(K.sum(A,keepdims=True,axis=1)))
+print(K.get_value(K.sum(A,keepdims=True,axis=2)))
+# print(K.get_value(K.sum(A,keepdims=True)))
+
+# %%
+
 
 def euclidean_distance(vects):
+    '''
+    この関数では サンプル間の距離を計算している
+    ユークリッド距離
+    '''
     x, y = vects
+    # 入力は隠れそうを通るので2つのサンプルになるので
+    # (None, 128) が入力される
+    # そのため axis=1 を指定している
+    # 因みに None になっている理由はサンプル数を可変にするため値が決まっていないとするため
+    # https://arakan-pgm-ai.hatenablog.com/entry/2017/05/06/214113
+
+    # sum で axis を指定すると指定した軸の次元が1になる
+    # (3, 3, 3) のデータがあるとすると
+    # axis=0 -> (1, 3, 3)
+    # axis=1 -> (3, 1, 3)
+    # axis=2 -> (3, 3, 1)
+    # となる
+
+    # ここでは (None, 128) であったので (None, 1) になる
     sum_square = K.sum(K.square(x - y), axis=1, keepdims=True)
+    # K.epsilon() は計算で使用される微小量を返す
     return K.sqrt(K.maximum(sum_square, K.epsilon()))
 
 
@@ -143,6 +199,7 @@ input_b = Input(shape=input_shape)
 processed_a = base_network(input_a)
 processed_b = base_network(input_b)
 
+## euclidean_distance はサンプル間の距離を計測する関数
 distance = Lambda(euclidean_distance,
                   output_shape=eucl_dist_output_shape)([processed_a, processed_b])
 
