@@ -187,6 +187,10 @@ digit_indices = [np.where(y_test == i)[0] for i in range(num_classes)]
 te_pairs, te_y = create_pairs(x_test, digit_indices)
 
 # %%
+print(tr_pairs[0])
+print(tr_y[0])
+
+# %%
 # network definition
 base_network = create_base_network(input_shape)
 
@@ -200,8 +204,9 @@ processed_a = base_network(input_a)
 processed_b = base_network(input_b)
 
 ## euclidean_distance はサンプル間の距離を計測する関数
-distance = Lambda(euclidean_distance,
-                  output_shape=eucl_dist_output_shape)([processed_a, processed_b])
+# distance = Lambda(euclidean_distance,
+#                   output_shape=eucl_dist_output_shape)([processed_a, processed_b])
+distance = Lambda(euclidean_distance)([processed_a, processed_b])
 
 model = Model([input_a, input_b], distance)
 
